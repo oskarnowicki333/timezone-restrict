@@ -1,3 +1,9 @@
+# DigitalOcean App Platform spec.
+# Import: doctl apps create --spec .do/app.yaml
+# Or in the UI: Create App -> pick your GitHub repo (App Platform auto-detects Python
+# from requirements.txt), then set the run command + env vars below.
+#
+# Replace `your-github-user/timezone-restrict` and `branch` with your real repo/branch.
 name: timezone-restrict
 region: nyc
 services:
@@ -6,7 +12,7 @@ services:
       repo: oskarnowicki333/timezone-restrict
       branch: main
       deploy_on_push: true
-    run_command: uvicorn main:app --host 0.0.0.0 --port 8080
+    run_command: uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
     environment_slug: python
     instance_size_slug: basic-xxs
     instance_count: 1
