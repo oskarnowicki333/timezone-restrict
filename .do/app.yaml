@@ -1,0 +1,34 @@
+name: timezone-restrict
+region: nyc
+services:
+  - name: timezone-restrict
+    github:
+      repo: oskarnowicki333/timezone-restrict
+      branch: main
+      deploy_on_push: true
+    run_command: uvicorn main:app --host 0.0.0.0 --port 8080
+    environment_slug: python
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 8080
+    health_check:
+      http_path: /health
+    envs:
+      - key: ALLOWED_TIMEZONES
+        scope: RUN_TIME
+        value: "Asia/Tokyo"
+      - key: RESPONSE_TEXT
+        scope: RUN_TIME
+        value: "OK"
+      - key: SUCCESS_STATUS
+        scope: RUN_TIME
+        value: "200"
+      - key: ERROR_TEXT
+        scope: RUN_TIME
+        value: "Forbidden"
+      - key: ERROR_STATUS
+        scope: RUN_TIME
+        value: "403"
+      - key: RATE_LIMIT
+        scope: RUN_TIME
+        value: "60/minute"
