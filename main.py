@@ -24,6 +24,7 @@ except ImportError:
     pass
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -86,6 +87,14 @@ limiter = Limiter(key_func=client_key)
 app = FastAPI(title="timezone-restrict")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Allow requests from any origin (browser frontends on other domains).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # --- Request model ----------------------------------------------------------
