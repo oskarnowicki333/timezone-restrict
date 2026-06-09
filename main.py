@@ -41,12 +41,28 @@ def _parse_allowed(raw: str) -> set[str]:
     return {z.strip() for z in raw.split(",") if z.strip()}
 
 
-ALLOWED_TIMEZONES = _parse_allowed(os.getenv("ALLOWED_TIMEZONES", "Asia/Tokyo"))
-RESPONSE_TEXT = os.getenv("RESPONSE_TEXT", "OK")
-SUCCESS_STATUS = int(os.getenv("SUCCESS_STATUS", "200"))
-ERROR_TEXT = os.getenv("ERROR_TEXT", "Forbidden")
-ERROR_STATUS = int(os.getenv("ERROR_STATUS", "403"))
-RATE_LIMIT = os.getenv("RATE_LIMIT", "60/minute")
+def _env_int(name: str, default: int) -> int:
+    """Read an int env var, falling back to default on empty/invalid values
+    (so a blank var in the App Platform panel can't crash the container)."""
+    raw = (os.getenv(name) or "").strip()
+    try:
+        return int(raw)
+    except ValueError:
+        logger.warning("Env %s=%r is not an int; using default %s", name, raw, default)
+        return default
+
+
+def _env_str(name: str, default: str) -> str:
+    raw = os.getenv(name)
+    return raw if raw not in (None, "") else default
+
+
+ALLOWED_TIMEZONES = _parse_allowed(_env_str("ALLOWED_TIMEZONES", "Asia/Tokyo"))
+RESPONSE_TEXT = _env_str("RESPONSE_TEXT", "OK")
+SUCCESS_STATUS = _env_int("SUCCESS_STATUS", 200)
+ERROR_TEXT = _env_str("ERROR_TEXT", "Forbidden")
+ERROR_STATUS = _env_int("ERROR_STATUS", 403)
+RATE_LIMIT = _env_str("RATE_LIMIT", "60/minute")
 
 logger.info("Allowed timezones: %s", sorted(ALLOWED_TIMEZONES))
 logger.info("Rate limit: %s", RATE_LIMIT)
